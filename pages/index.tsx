@@ -1,118 +1,411 @@
+"use client";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { City, Country, State } from "country-state-city";
 import Image from "next/image";
-import { Inter } from "next/font/google";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import * as Yup from "yup";
 
-const inter = Inter({ subsets: ["latin"] });
+interface IformFieldData {
+  country: string;
+  state: string;
+  city: string;
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  confirmPass: string;
+  profileImage: File | null;
+  language: string;
+  term: boolean;
+}
+
+const generateDefaultValues = (): IformFieldData => {
+  return {
+    country: "",
+    state: "",
+    city: "",
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPass: "",
+    profileImage: null,
+    language: "",
+    term: false,
+  };
+};
+const maxProfilePictureInMB = 5;
+const maxProfilePictureSize = maxProfilePictureInMB * 1024 * 1024; //5 MB;
+const maxPhoneNumber = 10;
+const schema = Yup.object().shape({
+  country: Yup.string().required("Country is required."),
+  state: Yup.string().required("State is required."),
+  city: Yup.string().required("City is require."),
+  name: Yup.string().required("Name is required."),
+  email: Yup.string()
+    .email("Email Format is not correct.")
+    .required("Email is required."),
+  phone: Yup.string().required("Phone number is required.").min(10),
+  password: Yup.string().required().min(6, "Must be 6 cheraters."),
+  confirmPass: Yup.string()
+    .required()
+    .oneOf([Yup.ref("password")], "Password must match.!!!"),
+  language: Yup.string().required("Language is required."),
+  profileImage: Yup.mixed()
+    .required("Profile Picture is Required.")
+    .test("fileType", "Please select a picture to upload.", (value: File) => {
+      return true;
+      // return (
+      //   value &&
+      //   value !== null &&
+      //   ["image/jpeg", "image/png", "image/jpg"].includes(value.type)
+      // );
+    })
+    .test(
+      "fileSize",
+      `Profile Picture size must not exceed ${maxProfilePictureInMB} MB`,
+      (value: any) => {
+        return value && value.size <= maxProfilePictureSize;
+      }
+    ),
+  // term: Yup.boolean().oneOf(["true"], "Accept term and condition"),
+  // term: Yup.boolean().required("Accept term and condition"),
+});
 
 export default function Home() {
+  const countries = Country.getAllCountries();
+  // console.log(countries, "states1");
+  const states = State.getAllStates();
+  // console.log(states, "states2");
+  const cities = City.getAllCities();
+  // console.log(cities, "states3");
+
+  const languages = ["Hindi", "English", "Odia"];
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<IformFieldData>({
+    defaultValues: generateDefaultValues(),
+    resolver: yupResolver(schema),
+  });
+  const onSubmit = (data: IformFieldData) => {
+    console.log(data, "formDtat:success");
+  };
+
+  console.log("error", errors);
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <>
+      <main className="flex min-h-screen flex-col items-center justify-between p-24">
+        <h1>SignUp Form Validation</h1>
+        <div className="flex w-full max-w-5xl gap-x-4">
+          <form action="" onSubmit={handleSubmit(onSubmit)}>
+            <div className="myform_container">
+              <div className="myform_input">
+                <label htmlFor="name">Full Name</label>
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({
+                    field: { value, onChange },
+                    fieldState: { error, invalid },
+                  }) => {
+                    return (
+                      <input
+                        type="text"
+                        id="name"
+                        value={value}
+                        onChange={onChange}
+                        placeholder="Enter your Name"
+                      />
+                    );
+                  }}
+                />
+                {errors && (
+                  <p style={{ color: "red" }}>{errors.name?.message}</p>
+                )}
+              </div>
+              <div className="myform_input">
+                <label htmlFor="email">Email</label>
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({
+                    field: { value, onChange },
+                    fieldState: { error, invalid },
+                  }) => {
+                    return (
+                      <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter your Email"
+                        value={value}
+                        onChange={onChange}
+                        // onChange=
+                      />
+                    );
+                  }}
+                />
+                {errors && (
+                  <p style={{ color: "red" }}>{errors.email?.message}</p>
+                )}
+              </div>
+              <div className="myform_input">
+                <label htmlFor="phone">Phone Number</label>
+                <Controller
+                  control={control}
+                  name="phone"
+                  render={({
+                    field: { value, onChange },
+                    fieldState: { error, invalid },
+                  }) => {
+                    return (
+                      <input
+                        type="number"
+                        name="phone"
+                        id="phone"
+                        placeholder="Enter your Phone"
+                        value={value}
+                        onChange={onChange}
+                        // onChange=
+                      />
+                    );
+                  }}
+                />
+                {errors && (
+                  <p style={{ color: "red" }}>{errors.phone?.message}</p>
+                )}
+              </div>
+              <div className="myform_input">
+                <label htmlFor="password">Password</label>
+                <Controller
+                  control={control}
+                  name="password"
+                  render={({
+                    field: { value, onChange },
+                    fieldState: { error, invalid },
+                  }) => {
+                    return (
+                      <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        placeholder="Enter your Password"
+                        value={value}
+                        onChange={onChange}
+                      />
+                    );
+                  }}
+                />
+                {errors && (
+                  <p style={{ color: "red" }}>{errors.password?.message}</p>
+                )}
+              </div>
+              <div className="myform_input">
+                <label htmlFor="confirmPass">Confirm Password</label>
+                <Controller
+                  control={control}
+                  name="confirmPass"
+                  render={({
+                    field: { value, onChange },
+                    fieldState: { error, invalid },
+                  }) => {
+                    return (
+                      <input
+                        type="password"
+                        name="confirmPass"
+                        id="confirmPass"
+                        placeholder="Confirm your Password"
+                        value={value}
+                        onChange={onChange}
+                      />
+                    );
+                  }}
+                />
+                {errors && (
+                  <p style={{ color: "red" }}>{errors.confirmPass?.message}</p>
+                )}
+              </div>
+              <div className="profile_media">
+                <Controller
+                  control={control}
+                  name="profileImage"
+                  render={({ field: { value, onChange } }) => {
+                    return (
+                      <>
+                        <div className="media_container">
+                          <Image
+                            src={
+                              value && value !== null && value instanceof File
+                                ? URL.createObjectURL(value)
+                                : "/public/next.svg"
+                            }
+                            alt="profile-photo"
+                            width={100}
+                            height={100}
+                            priority={true}
+                          />
+                        </div>
+                        <div className="media_input">
+                          <label htmlFor="profileImage">Profile Image</label>
+                          <input
+                            name="profileImage"
+                            id="profileImage"
+                            type="file"
+                            onChange={(e) => {
+                              onChange(e.target.files?.[0]);
+                              console.log(e.target.files?.[0], "image");
+                            }}
+                            accept="image/png, image/jpeg, image/jpg"
+                          />
+                          {errors && (
+                            <p style={{ color: "red" }}>
+                              {errors.profileImage?.message}
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    );
+                  }}
+                />
+              </div>
+              <div className="myform_select">
+                <label htmlFor="country">Country</label>
+                <Controller
+                  control={control}
+                  name="country"
+                  render={({
+                    field: { value, onChange },
+                    fieldState: { error, invalid },
+                  }) => {
+                    return (
+                      <select id="country" onChange={onChange}>
+                        <option value="">Select Country</option>
+                        {countries.map((item, _idx) => (
+                          <option key={_idx} value={item.name}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    );
+                  }}
+                />
+                {errors && (
+                  <p style={{ color: "red" }}>{errors.country?.message}</p>
+                )}
+              </div>
+
+              <div className="myform_select">
+                <label htmlFor="state">State</label>
+                <Controller
+                  control={control}
+                  name="state"
+                  render={({
+                    field: { value, onChange },
+                    fieldState: { error, invalid },
+                  }) => {
+                    return (
+                      <select id="state" onChange={onChange}>
+                        <option value="">Select State</option>
+                        {states.map((item, _idx) => (
+                          <option key={_idx} value={item.name}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    );
+                  }}
+                />
+                {errors && (
+                  <p style={{ color: "red" }}>{errors.state?.message}</p>
+                )}
+              </div>
+
+              <div className="myform_select">
+                <label htmlFor="city">City</label>
+                <Controller
+                  control={control}
+                  name="city"
+                  render={({
+                    field: { value, onChange },
+                    fieldState: { error, invalid },
+                  }) => {
+                    return (
+                      <select id="city" onChange={onChange}>
+                        <option value="">Select City</option>
+                        {cities.map((item, _idx) => (
+                          <option key={_idx} value={item.name}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    );
+                  }}
+                />
+                {errors && (
+                  <p style={{ color: "red" }}>{errors.city?.message}</p>
+                )}
+              </div>
+              <div className="myform_select">
+                <label htmlFor="language">Language</label>
+                <Controller
+                  control={control}
+                  name="language"
+                  render={({
+                    field: { value, onChange },
+                    fieldState: { error, invalid },
+                  }) => {
+                    return (
+                      <select id="language" onChange={onChange}>
+                        <option value="">Select Language</option>
+                        {languages.map((item) => (
+                          <option key={item} value={item}>
+                            {item}
+                          </option>
+                        ))}
+                      </select>
+                    );
+                  }}
+                />
+                {errors && (
+                  <p style={{ color: "red" }}>{errors.language?.message}</p>
+                )}
+              </div>
+
+              <div className="w-full">
+                <Controller
+                  control={control}
+                  name="term"
+                  render={({
+                    field: { value, onChange },
+                    fieldState: { error, invalid },
+                  }) => {
+                    return (
+                      <input type="checkbox" id="checkbox" onClick={onChange} />
+                    );
+                  }}
+                />
+                <label htmlFor="term">
+                  I agree to the terms and conditions
+                </label>
+                {errors && (
+                  <p style={{ color: "red" }}>{errors.term?.message}</p>
+                )}
+              </div>
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                type="submit"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+          <div className="myform_values"></div>
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
