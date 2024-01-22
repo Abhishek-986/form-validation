@@ -54,7 +54,7 @@ const schema = Yup.object().shape({
   language: Yup.string().required("Language is required."),
   profileImage: Yup.mixed()
     .required("Profile Picture is Required.")
-    .test("fileType", "Please select a picture to upload.", (value: File) => {
+    .test("fileType", "Please select a picture to upload.", (value: any) => {
       return true;
       // return (
       //   value &&
