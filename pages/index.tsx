@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as Yup from "yup";
+import imageAsset from "../public/images/user.png";
 
 interface IformFieldData {
   country: string;
@@ -55,12 +56,12 @@ const schema = Yup.object().shape({
   profileImage: Yup.mixed()
     .required("Profile Picture is Required.")
     .test("fileType", "Please select a picture to upload.", (value: any) => {
-      return true;
-      // return (
-      //   value &&
-      //   value !== null &&
-      //   ["image/jpeg", "image/png", "image/jpg"].includes(value.type)
-      // );
+      // return true;
+      return (
+        value &&
+        value !== null &&
+        ["image/jpeg", "image/png", "image/jpg"].includes(value.type)
+      );
     })
     .test(
       "fileSize",
@@ -82,10 +83,20 @@ export default function Home() {
   // console.log(cities, "states3");
 
   const languages = ["Hindi", "English", "Odia"];
+
+  // const [submittedData, setSubmittedData] = useState<IformFieldData>(
+  //   generateDefaultValues()
+  // );
+  // const getFormValues = () =>{
+  //   const data = getValues()
+  //   console.log(data);
+  //   return data;
+  // }
   const {
     control,
     handleSubmit,
     reset,
+    getValues,
     formState: { errors },
   } = useForm<IformFieldData>({
     defaultValues: generateDefaultValues(),
@@ -93,16 +104,21 @@ export default function Home() {
   });
   const onSubmit = (data: IformFieldData) => {
     console.log(data, "formDtat:success");
+    reset();
   };
-
+  const myData = getValues();
   console.log("error", errors);
 
   return (
     <>
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
-        <h1>SignUp Form Validation</h1>
+        <h1 className="underline text-2xl">SignUp Form Validation</h1>
         <div className="flex w-full max-w-5xl gap-x-4">
-          <form action="" onSubmit={handleSubmit(onSubmit)}>
+          <form
+            action=""
+            onSubmit={handleSubmit(onSubmit)}
+            autoComplete="false"
+          >
             <div className="myform_container">
               <div className="myform_input">
                 <label htmlFor="name">Full Name</label>
@@ -120,6 +136,7 @@ export default function Home() {
                         value={value}
                         onChange={onChange}
                         placeholder="Enter your Name"
+                        autoComplete="true"
                       />
                     );
                   }}
@@ -144,7 +161,7 @@ export default function Home() {
                         placeholder="Enter your Email"
                         value={value}
                         onChange={onChange}
-                        // onChange=
+                        autoComplete="true"
                       />
                     );
                   }}
@@ -170,7 +187,7 @@ export default function Home() {
                         placeholder="Enter your Phone"
                         value={value}
                         onChange={onChange}
-                        // onChange=
+                        autoComplete="true"
                       />
                     );
                   }}
@@ -196,6 +213,7 @@ export default function Home() {
                         placeholder="Enter your Password"
                         value={value}
                         onChange={onChange}
+                        autoComplete="false"
                       />
                     );
                   }}
@@ -221,6 +239,7 @@ export default function Home() {
                         placeholder="Confirm your Password"
                         value={value}
                         onChange={onChange}
+                        autoComplete="false"
                       />
                     );
                   }}
@@ -241,7 +260,7 @@ export default function Home() {
                             src={
                               value && value !== null && value instanceof File
                                 ? URL.createObjectURL(value)
-                                : "/public/next.svg"
+                                : imageAsset
                             }
                             alt="profile-photo"
                             width={100}
@@ -388,9 +407,7 @@ export default function Home() {
                     );
                   }}
                 />
-                <label htmlFor="term">
-                  I agree to the terms and conditions
-                </label>
+                <p>I agree to the terms and conditions</p>
                 {errors && (
                   <p style={{ color: "red" }}>{errors.term?.message}</p>
                 )}
@@ -403,7 +420,32 @@ export default function Home() {
               </button>
             </div>
           </form>
-          <div className="myform_values"></div>
+          <div className="myform_values">
+            {myData && myData !== undefined && (
+              <>
+                <h1 className="underline text-2xl">Form Values</h1>
+                {/* <pre>{JSON.stringify(watchAll(), null, 2)}</pre> */}
+                <h3>Name:-{myData?.name}</h3>
+                <h3>Email:-{myData.email}</h3>
+                <h3>Phone:-{myData.phone}</h3>
+                <h3>Password:-{myData.password}</h3>
+                <h3>Confirm password:-{myData.confirmPass}</h3>
+                <h3>Language known:-{myData.language}</h3>
+                <h3>Country:-{myData.country}</h3>
+                <h3>State:-{myData.state}</h3>
+                <h3>City:-{myData.city}</h3>
+                <h3>profileImage</h3>
+                <Image
+                  src={
+                    myData.profileImage && myData.profileImage !== null
+                      ? URL.createObjectURL(myData.profileImage)
+                      : imageAsset
+                  }
+                  alt="user-photo"
+                />
+              </>
+            )}
+          </div>
         </div>
       </main>
     </>

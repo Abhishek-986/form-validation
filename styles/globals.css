@@ -86,8 +86,11 @@ body {
   border-radius: 50%;
 }
 .media_container img{
-  width: 100%;
-  object-fit: cover;
+  width: 150px;
+  height: 150px;
+  border: 1px solid forestgreen;
+  border-radius: 50%;
+
 }
 .media_input{
   display: flex;
