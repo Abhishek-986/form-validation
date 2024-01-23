@@ -10,7 +10,7 @@ import imageAsset from "../public/images/user.png";
 interface IformFieldData {
   country: string;
   state: string;
-  city: string;
+  // city: string;
   name: string;
   email: string;
   phone: string;
@@ -25,7 +25,7 @@ const generateDefaultValues = (): IformFieldData => {
   return {
     country: "",
     state: "",
-    city: "",
+    // city: "",
     name: "",
     email: "",
     phone: "",
@@ -42,7 +42,7 @@ const maxPhoneNumber = 10;
 const schema = Yup.object().shape({
   country: Yup.string().required("Country is required."),
   state: Yup.string().required("State is required."),
-  city: Yup.string().required("City is require."),
+  // city: Yup.string().required("City is require."),
   name: Yup.string().required("Name is required."),
   email: Yup.string()
     .email("Email Format is not correct.")
@@ -71,7 +71,7 @@ const schema = Yup.object().shape({
       }
     ),
   // term: Yup.boolean().oneOf(["true"], "Accept term and condition"),
-  // term: Yup.boolean().required("Accept term and condition"),
+  term: Yup.boolean().required("Accept term and condition"),
 });
 
 export default function Home() {
@@ -79,7 +79,7 @@ export default function Home() {
   // console.log(countries, "states1");
   const states = State.getAllStates();
   // console.log(states, "states2");
-  const cities = City.getAllCities();
+  // const cities = City.getAllCities();
   // console.log(cities, "states3");
 
   const languages = ["Hindi", "English", "Odia"];
@@ -96,6 +96,7 @@ export default function Home() {
     control,
     handleSubmit,
     reset,
+    register,
     getValues,
     formState: { errors },
   } = useForm<IformFieldData>({
@@ -104,7 +105,7 @@ export default function Home() {
   });
   const onSubmit = (data: IformFieldData) => {
     console.log(data, "formDtat:success");
-    reset();
+    // reset();
   };
   const myData = getValues();
   console.log("error", errors);
@@ -265,7 +266,7 @@ export default function Home() {
                             alt="profile-photo"
                             width={100}
                             height={100}
-                            priority={true}
+                            priority={false}
                           />
                         </div>
                         <div className="media_input">
@@ -343,7 +344,7 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="myform_select">
+              {/* <div className="myform_select">
                 <label htmlFor="city">City</label>
                 <Controller
                   control={control}
@@ -367,7 +368,7 @@ export default function Home() {
                 {errors && (
                   <p style={{ color: "red" }}>{errors.city?.message}</p>
                 )}
-              </div>
+              </div> */}
               <div className="myform_select">
                 <label htmlFor="language">Language</label>
                 <Controller
@@ -395,20 +396,14 @@ export default function Home() {
               </div>
 
               <div className="w-full">
-                <Controller
-                  control={control}
-                  name="term"
-                  render={({
-                    field: { value, onChange },
-                    fieldState: { error, invalid },
-                  }) => {
-                    return (
-                      <input type="checkbox" id="checkbox" onClick={onChange} />
-                    );
-                  }}
+                <input
+                  type="checkbox"
+                  checked={false}
+                  id="checkbox"
+                  {...register("term")}
                 />
                 <p>I agree to the terms and conditions</p>
-                {errors && (
+                {errors.term?.message && (
                   <p style={{ color: "red" }}>{errors.term?.message}</p>
                 )}
               </div>
@@ -433,7 +428,7 @@ export default function Home() {
                 <h3>Language known:-{myData.language}</h3>
                 <h3>Country:-{myData.country}</h3>
                 <h3>State:-{myData.state}</h3>
-                <h3>City:-{myData.city}</h3>
+                {/* <h3>City:-{myData.city}</h3> */}
                 <h3>profileImage</h3>
                 <Image
                   src={
@@ -442,6 +437,8 @@ export default function Home() {
                       : imageAsset
                   }
                   alt="user-photo"
+                  width={100}
+                  height={100}
                 />
               </>
             )}

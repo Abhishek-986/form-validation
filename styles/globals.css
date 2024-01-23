@@ -84,6 +84,7 @@ body {
   height: 150px;
   margin: 0 auto;
   border-radius: 50%;
+  background-color: #fff;
 }
 .media_container img{
   width: 150px;
@@ -97,5 +98,5 @@ body {
   flex-direction: column;
   justify-content: flex-start;
   gap: 6px;
-  padding: 1.5rem 0;
+  padding: 1.5rem;
 }
